@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import cubicEls from '../images/cubicEls.png';
+	import cubicEls from '../assets/images/cubicEls.png';
 
 	let isUserAfk = false;
 	let lastActivityTime = Date.now();
@@ -65,17 +65,14 @@
 <section class="cubic-grid">
 	{#each Array(10) as _, i}
 		<div class="cubic-grid-items">
-			<img
-				class="cubic-grid-items-img {isUserAfk ? 'cubic-grid-items-img--active' : 'cubic-grid-items-img--inactive'}"
-				src={cubicEls}
-				alt="Cubic Element {i}"
-			/>
+			<img class="cubic-grid-items-img {isUserAfk ? 'cubic-grid-items-img--active' : 'cubic-grid-items-img--inactive'}" src={cubicEls} alt="Cubic Element {i}" />
 		</div>
 	{/each}
 </section>
 
 <style lang="scss">
 	.cubic-grid {
+		z-index: 1;
 		overflow: hidden;
 		pointer-events: none;
 		position: fixed;

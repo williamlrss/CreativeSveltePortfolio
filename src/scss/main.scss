@@ -1,60 +1,37 @@
-$primaryCl: #f7e7ce;
-$secondaryCl: #e6be8a;
-$shadowCl: #cba135;
-$shadowFSize: calc(2em + 10vw);
-$shadowFWeight: 600;
-
-// $shadowdCl: rgba(247, 231, 206, 0.25);
-
 :root {
 	color-scheme: dark;
 	font-family: 'Cormorant', serif;
-}
+	--text-primary: #f7e7ce;
 
-* {
-	margin: unset;
+	/* Base font size for small devices */
+	--base-font-size: 2vw;
+
+	/* Scaling factors */
+	--scale-ratio: 1.1vw;
 }
 
 @media (prefers-color-scheme: light) and (prefers-color-scheme: dark) {
 	:root {
-		--text-primary: #ffffff;
-		--background: rgb(25, 25, 25);
+		--text-primary: #f7e7ce;
+		--background: #0d0d0d;
 		--shadow: rgba(0, 0, 0, 0.35) 0px 2px 5px 0px;
 	}
 }
 
-h1 {
-	font-size: calc(4em + 2vw);
+* {
+	margin: unset;
+	padding: unset;
+	font: inherit;
+	background: none;
+	color: inherit;
+	border: none;
+	text-align: inherit;
+	line-height: normal;
+	text-decoration: unset;
 }
 
-h2 {
-	font-size: calc(3em + 2vw);
-}
-
-h3 {
-	font-size: calc(2em + 2vw);
-}
-
-p,
-a {
-	font-size: calc(1em + 2vw);
-}
-
-@media (min-aspect-ratio: 1/1) {
-	h1 {
-		font-size: calc(4em + 4vw);
-	}
-
-	h2 {
-		font-size: calc(3em + 4vw);
-	}
-
-	h3 {
-		font-size: calc(2em + 4vw);
-	}
-
-	p,
-	a {
-		font-size: calc(1em + 4vw);
+@media (min-width: 1400px) {
+	:root {
+		--base-font-size: calc(var(--base-font-size) - var(--scale-ratio));
 	}
 }

@@ -1,40 +1,54 @@
 <script>
-	import PanelOne from './panels/PanelOne.svelte';
-	import PanelTwo from './panels/PanelTwo.svelte';
-	import Border from './panels/Borders.svelte';
+	import Introduction from './panels/Introduction.svelte';
+	import WebDev from './panels/webDev.svelte';
+	import TextOnScroll from './panels/TextOnScroll.svelte';
+	import Objectives from './panels/Objectives.svelte';
+	import ScrollX from './panels/ScrollX.svelte';
 
-	// import { scrollStore } from '../stores/scrollStore';
-	// let containerStyle = '';
-	// $: containerStyle = `transform: translateY(-${$scrollStore.scrollY * 3}px)`;
+	import Outro from './panels/Outro.svelte';
+
+	import { isMobileStore } from '../stores/isMobileStore';
+
+	let appPanelsParent;
+
+	let components = [
+		{ component: Introduction },
+		{ component: WebDev },
+		{ component: TextOnScroll },
+		{ component: Objectives },
+		{ component: ScrollX },
+		{ component: Outro },
+	];
 </script>
 
-<section class="app-panels">
-	<PanelOne />
-	<Border />
-</section>
-<section class="app-panels">
-	<PanelTwo />
-	<Border />
-</section>
-<section class="app-panels">
-	<Border />
-</section>
-<section class="app-panels">
-	<Border />
-</section>
-<section class="app-panels">
-	<Border />
-</section>
+<div bind:this={appPanelsParent} style={$isMobileStore.aspectRatio ? 'height: 90%;' : ''}>
+	{#each components as { component: Comp, props }, i}
+		<section class="app-panels" data-index={i}>
+			<svelte:component this={Comp} {...props} />
+		</section>
+	{/each}
+</div>
 
 <style lang="scss">
 	.app-panels {
 		position: relative;
 		overflow: hidden;
-		width: 100vw;
-		height: 150vh;
+		box-sizing: border-box;
+		// margin: 5%;
 
-		@media (min-aspect-ratio: 1/1) {
-			height: 200vh;
+		&:nth-child(1),
+		&:nth-child(2),
+		&:nth-child(4) {
+			transform: scale(80%);
+		}
+
+		&:nth-child(4) {
+			// overflow: visible;
+			z-index: 0;
+		}
+
+		&:nth-child(5) {
+			z-index: 1;
 		}
 	}
 </style>

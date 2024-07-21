@@ -1,10 +1,22 @@
+import { isMobileStore } from '../stores/isMobileStore';
+import { onDestroy } from 'svelte';
+
 export function rotateOnMouseMove(node) {
 	let rx = 0; // Rotation around X-axis
 	let ry = 0; // Rotation around Y-axis
 	const maxRotation = 10; // Maximum rotation in degrees
-	const slowFactor = 3; // Increase this factor to slow down the rotation speed
+	const slowFactor = 15; // Increase this factor to slow down the rotation speed
+
+	let isMobile = false;
+	const unsubscribe = isMobileStore.subscribe($isMobileStore => {
+		isMobile = $isMobileStore.touchSupport;
+	});
 
 	function handleMouseMove(event) {
+		if (isMobile) {
+			return;
+		}
+
 		const { width, height, left, top } = node.getBoundingClientRect();
 		const centerX = left + width / 2;
 		const centerY = top + height / 2;
@@ -28,6 +40,29 @@ export function rotateOnMouseMove(node) {
 	}
 
 	window.addEventListener('mousemove', handleMouseMove);
+
+	const resetAndStop = () => {
+		if (isMobile) {
+			node.style.setProperty('--Rx', '0');
+			node.style.setProperty('--Ry', '0');
+		}
+	};
+
+	const debounce = (callback, delay) => {
+		let timer;
+		return function () {
+			clearTimeout(timer);
+			timer = setTimeout(() => {
+				callback();
+			}, delay);
+		};
+	};
+
+	window.addEventListener('resize', debounce(resetAndStop, 200));
+
+	onDestroy(() => {
+		unsubscribe();
+	});
 
 	return {
 		destroy() {

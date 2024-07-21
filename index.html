@@ -2,34 +2,69 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="darkreader-lock" />
-		<title>William's PORTFOLIO</title>
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="title" content="A William Lerossignol portfolio project, created with Svelte" />
+		<meta
+			name="description"
+			content="Explore my interactive portfolio featuring advanced on-scroll animations, enhanced menu navigation, and downloadable scripts. Dive into my professional journey, access my CV, and discover how my innovative web development skills can contribute to your projects. Connect with me today for collaborative opportunities."
+		/>
+		<meta name="theme-color" content="#000000" />
+
+		<title>William Lerossignol PORTFOLIO</title>
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<link rel="manifest" href="/manifest.json" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
 			href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
 			rel="stylesheet"
 		/>
-		<link rel="stylesheet" href="style.css" />
+
 		<script type="module">
 			import App from './src/App.svelte';
 			new App({ target: document.body });
+
+			document.documentElement.style.height = window.innerHeight;
+			document.documentElement.style.width = window.innerWidth;
+
+			const lock = document.createElement('meta');
+			lock.name = 'darkreader-lock';
+			document.head.appendChild(lock);
 		</script>
+
 		<style>
+			/* html { */
+			/* overflow-x: hidden; */
+			/* } */
+
 			body {
-				color: white;
+				font-size: 16px;
 				margin: unset;
+				padding: unset;
 				position: relative;
-				display: grid;
-				place-items: center;
-				overflow-x: hidden;
-				background-color: rgb(25, 25, 25);
 				scroll-behavior: smooth;
 			}
 
 			.no-scroll {
 				overflow: hidden;
+			}
+
+			::-webkit-scrollbar {
+				scrollbar-width: thin;
+				scrollbar-color: #888 #f1f1f1;
+				width: 8px;
+			}
+
+			::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+
+			::-webkit-scrollbar-thumb {
+				background: #888;
+			}
+
+			::-webkit-scrollbar-thumb:hover {
+				background: #555;
 			}
 		</style>
 	</head>

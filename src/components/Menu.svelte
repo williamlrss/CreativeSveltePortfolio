@@ -1,69 +1,167 @@
 <script>
-	import { isMobileStore } from '../stores/isMobileStore';
-	import { isMenuActive } from '../stores/menuActiveStore';
-	import { binaryCode } from '../actions/binaryCode.js';
-	import whiteFlame from '../images/white-flames.gif';
+	import { onMount, onDestroy } from 'svelte';
+	import { writable } from 'svelte/store';
 
-	let hoverPhrases = [''];
-	let isHovering = false;
+	// STORES
+	import { isMobileStore } from '../stores/isMobileStore'; // based on ratio and / or touch support detection
 
-	const whoAmIHover = ['I am looking for a permanent position', 'Lyon-based Enterprises, agencies, teams'];
-	const theCodeHover = ['The only limit', 'of my dedication to the code', 'is your imagination'];
-	const ReachOutHover = ['Have you ever seen a contact form?', 'well, this one is not really different', 'but still', 'reach out!'];
+	// NAVIGATION STATES
+	import { isMenuActive, navItemActive, hireMeItemActive, myCodeItemActive } from '../stores/navigationStores';
 
-	const showPhrases = phrases => {
-		hoverPhrases = phrases;
-		if ($isMobileStore.touchSupport) isHovering = false;
-		else isHovering = true;
+	// ACTIONS
+	import { setAccurateViewportHeight } from '../actions/setAccurateViewportHeight'; // responsive to browser's interface height (mobile devices)
+	import { fontSizer } from '../actions/fontSizer'; // responsive to container dimensions
+	import { noise } from '../actions/noise'; // nav components texture
+
+	// ASSETS
+	import cubicEls from '../assets/images/cubicEls.png'; // background
+	import me from '../assets/images/williamlrss.jpg';
+
+	// NAV COMPONENTS
+	// import HireMe from './navItems/hireMe.svelte';
+	import Credits from './navItems/Credits.svelte';
+	import MyCode from './navItems/TheCode.svelte';
+
+	$: if ($isMenuActive) document.body.classList.add('no-scroll');
+	else document.body.classList.remove('no-scroll');
+
+	const topics = ['Hire me', 'The code', 'Credits'];
+	const desc = ['My profile on Notion (french)', 'Scripts of this website', 'Code from others'];
+
+	// NAV PROCESS
+	const positioning = writable(['0', '0', '0']);
+	const setTranslation = () => {
+		if ($navItemActive === 0) {
+			positioning.set(['0', '0', '0']); // In %
+		} else if ($navItemActive === 1) {
+			positioning.set(['33', '33;', '33']);
+		} else if ($navItemActive === 2) {
+			positioning.set(['66', '66', '66']);
+		}
+		setTimeout(() => {
+			if ($navItemActive != null) {
+				positioning.set(['0', '0', '0']);
+			}
+		}, 600);
 	};
 
-	function hidePhrases() {
-		isHovering = false;
+	let waitAndRender = false;
+
+	const selectNavItem = index => {
+		if (index === $navItemActive) {
+			// Return
+			$navItemActive = null;
+		} else {
+			// Select the unselected
+			if (index === 0) window.open(`https://profil-notion.williamlrss.com/`, '_blank');
+			else {
+				$navItemActive = index;
+				setTimeout(() => {
+					if ($navItemActive != null) {
+						waitAndRender = true;
+					}
+				}, 900);
+			}
+		}
+	};
+
+	$: if ($navItemActive === null) {
+		waitAndRender = false;
+		positioning.set(['0', '33', '66']);
+	} else {
+		setTranslation();
 	}
+
+	let lockValue = false;
+
+	// Forbid return-back-to-navigation when navigating within nav
+	$: if ($hireMeItemActive != null || $myCodeItemActive != null) {
+		lockValue = true;
+	} else {
+		setTimeout(() => {
+			lockValue = false;
+		}, 200);
+	}
+
+	const returnOnEscape = event => {
+		if (!lockValue && event.key !== 'Backspace')
+			if (event.key === 'Escape' && $navItemActive !== null) $navItemActive = null;
+			else if (event.key === 'Escape' && $isMenuActive && $navItemActive === null) isMenuActive.update(n => !n);
+	};
+
+	onMount(() => {
+		document.addEventListener('keydown', returnOnEscape);
+	});
+
+	onDestroy(() => {
+		document.removeEventListener('keydown', returnOnEscape);
+	});
 </script>
 
-<section class="menu {$isMenuActive ? 'menu--active' : 'menu--inactive'}">
-	<div class="menu-container {$isMenuActive ? 'menu-container--active' : ''}">
-		<div class="menu-container__main-panel">
-			<nav class="nav">
-				<ul class="nav-list">
-					<li class="nav-list-links">
-						<a title="click me" on:mouseover={() => showPhrases(whoAmIHover)} on:focus={() => showPhrases(whoAmIHover)} on:mouseleave={hidePhrases} href="#whoAmI"
-							>Hire me</a
-						>
-					</li>
-					<li class="nav-list-links">
-						<a title="click me" on:mouseover={() => showPhrases(theCodeHover)} on:focus={() => showPhrases(theCodeHover)} on:mouseleave={hidePhrases} href="#TheCode"
-							>The code</a
-						>
-					</li>
-					<li class="nav-list-links">
-						<a
-							title="click me"
-							on:mouseover={() => showPhrases(ReachOutHover)}
-							on:focus={() => showPhrases(ReachOutHover)}
-							on:mouseleave={hidePhrases}
-							href="#ReachOut">Reach out</a
-						>
-					</li>
-				</ul>
-			</nav>
-		</div>
-		<span class="menu-container__separator"></span>
-		<div class="menu-container__second-panel">
-			{#if isHovering}
-				<div use:binaryCode={hoverPhrases} class="nav-list-links__onHoverThings"></div>
-			{/if}
+<section class="menu {$isMenuActive ? 'menu--active' : 'menu--inactive'}" class:menu--myCodeActive={$navItemActive === 1} use:setAccurateViewportHeight>
+	<div
+		max-height={$navItemActive === null && $isMobileStore.aspectRatio ? '100%' : '50%'}
+		max-witdh={$navItemActive === null && $isMobileStore.aspectRatio ? '50%' : '100%'}
+		class:menu-container--active={$isMenuActive}
+		class="menu-container"
+	>
+		{#if $isMenuActive}
+			<section class="menu-container__main-panel {$navItemActive != null ? 'menu-container__main-panel--active' : 'menu-container__main-panel--inactive'}">
+				{#if $navItemActive === 1 && waitAndRender}
+					<MyCode />
+				{:else if $navItemActive === 2 && waitAndRender}
+					<Credits />
+				{/if}
 
-			<img
-				class="white-flames {isHovering ? 'white-flames--active' : $isMobileStore.touchSupport ? 'white-flames--active' : ''}"
-				src={whiteFlame}
-				alt="white flame"
-			/>
-			<span class="question-mark {$isMenuActive ? 'question-mark--active' : ''}">
-				<p class="question-mark-text">?</p>
-			</span>
-		</div>
+				<nav class="nav" class:nav--active={$navItemActive != null}>
+					{#each [0, 1, 2] as index}
+						<button
+							on:click={() => selectNavItem(index)}
+							class:nav-item--active={index === $navItemActive}
+							class:nav-item--inactive={($navItemActive != null && index !== $navItemActive) || $hireMeItemActive != null}
+							class:nav-item--inactive--second={$hireMeItemActive != null || $myCodeItemActive != null}
+							tabindex={($navItemActive != null && index !== $navItemActive) || $hireMeItemActive != null || $myCodeItemActive != null ? '-1' : '0'}
+							class="nav-item"
+							style="--topPos: {$positioning[index]}%"
+							use:fontSizer={{ h: true, p: $isMobileStore.aspectRatio ? 25 : 21 }}
+						>
+							{topics[index]}
+							<br />
+							<p style="scale: 0.6;">{desc[index]}</p>
+						</button>
+					{/each}
+				</nav>
+			</section>
+
+			<section class="menu-container__second-panel" class:menu-container__second-panel--inactive={$navItemActive != null}>
+				{#if !$isMobileStore.aspectRatio}
+					<img
+						class="menu-container__second-panel-background"
+						class:menu-container__second-panel-background--inactive={$navItemActive != null}
+						src={cubicEls}
+						alt="white flame"
+					/>
+				{/if}
+				{#if $navItemActive === null}
+					<div class="menu-container__second-panel__contact">
+						<img class="menu-container__second-panel__contact-img" src={me} alt="Photo_Professionnelle_de_William_Lerossignol" />
+
+						<div class="contact-container">
+							<a class="contact-container-item" href="tel:+33668860800" use:fontSizer={{ w: true, p: $isMobileStore.aspectRatio ? 9 : 7 }}>06 68 86 08 00</a>
+							<a
+								class="contact-container-item"
+								target="_blank"
+								href="https://www.linkedin.com/in/williamlerossignol/"
+								use:fontSizer={{ w: true, p: $isMobileStore.aspectRatio ? 9 : 7 }}>in/williamlerossignol</a
+							>
+							<a class="contact-container-item" href="mailto:williamlerossignol@outlook.com" use:fontSizer={{ w: true, p: $isMobileStore.aspectRatio ? 9 : 7 }}
+								>williamlerossignol<br />@outlook.com</a
+							>
+						</div>
+					</div>
+				{/if}
+			</section>
+		{/if}
 	</div>
 </section>
 
@@ -71,35 +169,54 @@
 	@import '../scss/main.scss';
 
 	.menu {
-		z-index: 99; // over everything except the button who's 100
 		position: fixed;
-		top: 5%;
-		left: 5%;
-		width: 90%;
-		height: 80%;
-		transform: translateX(100vw);
-		perspective: 200px;
-		transition: 1s ease-out;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: calc(var(--vh, 1vh) * 90); // see setAccurateHeight import
+
+		will-change: transform;
+
+		@media (max-aspect-ratio: 1/1) {
+			transition: 0.3s ease-out;
+		}
 
 		@media (min-aspect-ratio: 1/1) {
-			transform: translateX(-100vw);
+			top: 5%;
+			left: 5%;
+			width: 80%;
+			height: 90%;
 			perspective: 200px;
 		}
 
 		&--active {
-			background-color: rgba(0, 0, 0, 0.3);
-			transform: translateX(0);
+			z-index: 99; // over everything except the button (100)
 			opacity: 1;
+			transition:
+				all 1s 0.6s ease-out,
+				z-index 0.1s;
 
+			@media (max-aspect-ratio: 1/1) {
+				transition:
+					all 0.3s ease-out,
+					z-index 0.1s;
+			}
+		}
+
+		&--myCodeActive {
 			@media (min-aspect-ratio: 1/1) {
-				width: 80%;
-				height: 90%;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
 			}
 		}
 
 		&--inactive {
-			background-color: rgb(255, 255, 255);
 			opacity: 0;
+			transition: all 0.3s ease-out;
+			pointer-events: none;
+			z-index: -1;
 		}
 
 		&-container {
@@ -109,125 +226,303 @@
 			width: 100%;
 			height: 100%;
 			transition: 1s ease-out;
-			transform: rotateY(-25deg);
+			background: #ccccccde;
 
 			@media (min-aspect-ratio: 1/1) {
 				flex-direction: row;
-				transform: rotateY(25deg);
-			}
-
-			&--active {
-				transform: rotateY(0);
 			}
 
 			&__main-panel {
 				display: flex;
 				flex-direction: column;
 				width: 100%;
-				height: 100%;
+				height: 60%;
+				scale: 0.9;
+				transition:
+					all 0.3s,
+					scale 1.2s 0.6s;
+
+				@media (min-aspect-ratio: 1/1) {
+					height: 100%;
+					width: 60%;
+				}
+
+				&--active {
+					width: 100%;
+					height: 100%;
+					scale: 1;
+					background-color: #191919;
+				}
 			}
 
 			&__second-panel {
 				position: relative;
-				display: grid;
-				place-items: center;
-				background-color: rgb(0, 0, 0);
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-end;
 				width: 100%;
-				height: 100%;
+				height: 40%;
+
+				transition:
+					opacity 0.3s ease-in,
+					width 0.6s 0.3s,
+					height 0.6s;
+
+				@media (min-aspect-ratio: 1/1) {
+					display: grid;
+					place-items: center;
+					align-items: start;
+					width: 40%;
+					height: 100%;
+				}
+
+				&--inactive {
+					opacity: 0;
+					width: 0;
+					height: 0;
+				}
+
+				&-background {
+					overflow: hidden;
+					z-index: 100;
+					pointer-events: none;
+					position: absolute;
+					opacity: 0.1;
+
+					width: 100%;
+					height: 140vh;
+					object-fit: cover;
+					transition: all 0.2s;
+
+					&--inactive {
+						opacity: 0;
+					}
+				}
+
+				&__contact {
+					position: absolute;
+					z-index: 101;
+					display: flex;
+					flex-direction: row;
+
+					width: 80%;
+					height: 100%;
+					margin-inline: 10%;
+
+					@media (min-aspect-ratio: 1/1) {
+						flex-direction: column;
+						gap: 10px;
+						width: 90%;
+						height: 75vh;
+						margin-inline: unset;
+						margin-top: 5vh;
+					}
+
+					&-img {
+						box-shadow: -7px 7px 14px -1px rgba(0, 0, 0, 0.3);
+						align-self: start;
+						object-fit: cover;
+						height: 100%;
+						width: 40%;
+
+						opacity: 0;
+						animation: display 0.3s 0.3s forwards;
+
+						@media (min-aspect-ratio: 1/1) {
+							scale: 0.9;
+							height: 40%;
+							width: 100%;
+							object-position: 0% 45%;
+						}
+					}
+				}
 			}
 		}
 	}
 
-	.white-flames {
-		width: auto;
-		opacity: 0;
-		transition: 0.3s;
+	.contact-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 
-		@media (min-aspect-ratio: 1/1) {
-			width: 100%;
-		}
-
-		&--active {
-			opacity: 1;
-		}
-	}
-
-	.question-mark {
-		position: absolute;
-		height: 50%;
-		display: grid;
-		place-items: center;
-		padding-top: 50%;
-		opacity: 0;
-		transition: 1s;
-
-		@media (min-aspect-ratio: 1/1) {
-			padding-top: 50%;
-		}
-
-		&--active {
-			opacity: 1;
-		}
-
-		&-text {
-			font: inherit;
-			font-size: calc(8em + 4vw);
-			margin-block: unset;
-		}
-	}
-
-	:is(.nav, .nav-list, .nav-list-links, .nav-list-links a) {
 		width: 100%;
 		height: 100%;
+
+		@media (min-aspect-ratio: 1/1) {
+			gap: 10px;
+		}
+
+		&-item {
+			display: grid;
+			align-items: center;
+			width: 90%;
+			height: 30%;
+
+			background-color: rgba(255, 255, 255, 0.3);
+			color: #191919;
+			font-weight: 700;
+			padding: 10px;
+
+			scale: 0.9;
+
+			@media (max-aspect-ratio: 1/1) {
+				height: 25%;
+				box-shadow: -7px 7px 14px -1px rgba(0, 0, 0, 0.3);
+			}
+
+			@media (min-aspect-ratio: 1/1) {
+				width: 100%;
+				box-shadow: -7px 7px 14px -1px rgba(0, 0, 0, 0.3);
+			}
+
+			&:hover {
+				box-shadow: -7px 7px 14px -1px rgba(0, 0, 0, 0.57);
+			}
+		}
+	}
+
+	@keyframes display {
+		from {
+			opacity: 0;
+			transform: translateX(0);
+		}
+		to {
+			opacity: 1;
+		}
 	}
 
 	.nav {
-		z-index: 100;
-		&-list {
-			padding: unset;
-			margin: unset;
-			display: flex;
-			flex-direction: column;
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-around;
+		transition: height 0.9s 0.3s;
 
-			&-links {
-				list-style: none;
-				font: inherit;
-				display: grid;
-				place-items: center;
-				text-align: center;
-				width: 100%;
-				height: 100%;
+		&--active {
+			height: 0;
+		}
 
-				& a {
-					width: 98%;
-					height: 90%;
-					display: grid;
-					place-items: center;
-					// font-size: calc(2rem + 3vh);
-					text-decoration: none;
-					background-color: rgb(24, 24, 24);
-					color: $primaryCl;
-					font-weight: 400;
-					transition: 0.3s ease-out;
-					box-shadow: -7px 7px 14px -1px rgba(0, 0, 0, 0.57);
+		&-item {
+			position: absolute;
+			z-index: 1;
+			cursor: pointer;
+			font: inherit;
+			display: grid;
+			place-items: center;
+			text-align: center;
+			align-content: center;
+			width: 100%;
+			min-height: 48px;
+			height: 30%;
+			scale: 0.9;
 
-					&:hover {
-						background-color: rgba(255, 255, 255, 0.7);
-						color: rgba(0, 0, 0, 0.8);
-					}
+			background-color: #191919;
+			color: #f7e7ce;
+			font-weight: 400;
+			box-shadow: -7px 7px 14px -1px rgba(0, 0, 0, 0.57);
+			border: 2px solid transparent;
+
+			opacity: 1;
+			transition:
+				background-color 0.1s,
+				color 0.1s,
+				top 0.9s 0.3s ease-out,
+				opacity 0.3s 0.4s,
+				scale 0.3s,
+				transform 0.9s,
+				height 0.9s;
+
+			will-change: transform color opacity;
+
+			&:nth-child(1) {
+				top: var(--topPos, 0);
+			}
+
+			&:nth-child(2) {
+				top: var(--topPos, 33%);
+			}
+
+			&:nth-child(3) {
+				top: var(--topPos, 66%);
+			}
+
+			&:hover {
+				color: #191919;
+				background-color: transparent;
+				border: 2px solid #f7e7ced8;
+			}
+
+			&--active {
+				background-color: #191919;
+				border-radius: 0%;
+				backdrop-filter: blur(2px);
+				color: #f7e7ced8;
+				height: 15%;
+
+				@media (min-aspect-ratio: 1/1) {
+					height: 20%;
 				}
 
-				&__onHoverThings {
+				&::before,
+				&::after {
+					pointer-events: none;
 					position: absolute;
-					display: flex;
-					justify-content: center;
-					width: 100%;
-					top: 10%;
+					content: 'Return';
+					color: #f7e7ce9f;
+					font-weight: 400;
+					opacity: 0;
+					animation: display 0.6s 0.6s forwards;
+
+					transition:
+						left 0.9s,
+						right 0.9s;
+				}
+
+				&::before {
+					transform: scaleX(-1);
+					left: 5%;
+				}
+
+				&::after {
+					right: 5%;
+				}
+
+				&:hover {
+					color: transparent;
+
+					&::before {
+						left: 15%;
+						color: #191919;
+					}
+
+					&::after {
+						right: 15%;
+						color: #191919;
+					}
 
 					@media (min-aspect-ratio: 1/1) {
-						font-size: calc(1em + 0.5vw);
+						&::before {
+							left: 35%;
+						}
+
+						&::after {
+							right: 35%;
+						}
 					}
 				}
+			}
+
+			&--inactive {
+				z-index: 0;
+				pointer-events: none;
+				opacity: 0;
+				scale: 0.6;
+			}
+
+			&--inactive--second {
+				scale: 0.9;
+				transform: translateY(-200%);
 			}
 		}
 	}

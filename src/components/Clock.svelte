@@ -1,9 +1,10 @@
 <script>
-	import { scrollStore } from '../stores/scrollStore.js';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 
-	import { isMenuActive } from '../stores/menuActiveStore.js';
+	import { isMenuActive } from '../stores/navigationStores';
+	import { scrollStore } from '../stores/scrollStore';
+
 	const textLength = tweened(1000, {
 		duration: 4000,
 		easing: cubicOut,
@@ -14,31 +15,20 @@
 	} else {
 		textLength.set(400);
 	}
-
-	// $: console.log('Scroll Y position:', $scrollStore.scrollY);
-
-	// $: if ($scrollStore.direction === 'down') {
-	// 	console.log('down');
-	// }
-
-	// $: if ($scrollStore.direction === 'up') {
-	// 	console.log('up');
-	// }
 </script>
 
-<svg viewBox="0 0 200 200" class="clock {$isMenuActive ? 'active' : ''}" aria-labelledby="link1-title link1-desc">
-	<title id="link1-title">Rotating Clock</title>
-	<desc id="link1-desc">A large text displayed as a rotating clock in the background</desc>
-
-	<path id="link-circle" class="link__path" d="M 20, 100 a 80,80 0 1,1 160,0 a 80,80 0 1,1 -160,0" stroke="none" fill="none" />
-	<text class="clock-rotating-path" style="--rotate-degrees: {$scrollStore.scrollY / 10}deg">
-		<textPath href="#link-circle" stroke="none"> <tspan textLength={$textLength}>Welcome to a William's P O R T F O L I O</tspan></textPath>
+<svg aria-hidden="true" viewBox="0 0 200 200" class="clock" class:clock--active={$isMenuActive}>
+	<path id="clock" class="clock-path" d="M 20, 100 a 80,80 0 1,1 160,0 a 80,80 0 1,1 -160,0" stroke="none" fill="none" />
+	<text class="clock-rotating-path" style="--rotate-degrees: {$scrollStore.scrollY / -40 + 150}deg">
+		<textPath style="font-display: swap;" href="#clock" stroke="none" startOffset="50%" text-anchor="middle">
+			<tspan y="1" style="transform: rotate(180, 10, 0); font-size: calc(2em + 0.1vw);">Welcome to a williamlrss portfolio</tspan>
+		</textPath>
 	</text>
 </svg>
 
 <style lang="scss">
-	// | | | | | | | | | | | | | | | | | | | | | | | |
 	.clock {
+		overflow: visible;
 		pointer-events: none;
 		z-index: 2;
 		position: fixed;
@@ -48,26 +38,26 @@
 		height: 110vh;
 		fill: #f7e7ce;
 		opacity: 0.2;
-		transition: 4s;
+		transition:
+			all 4s,
+			fill 0.1s;
+		will-change: transform scale;
 
-		// @media (min-aspect-ratio: 1/1) {
-		// 	top: -200vh;
-		// 	width: 300vh;
-		// 	height: 300vh;
-		// }
+		&--active {
+			transform: translate3d(10vh, 60vh, 0);
+			scale: 1.35;
+			rotate: none;
+			translate: none;
+		}
+
+		&-path {
+			font-size: 1em;
+		}
 
 		&-rotating-path {
 			transform-origin: center;
+			will-change: transform;
 			transform: rotate(var(--rotate-degrees));
-			transition: transform 0.3s ease-out;
 		}
-	}
-
-	.active {
-		top: 20vh;
-		left: -50vh;
-		width: 150vh;
-		height: 150vh;
-		transition: 4s;
 	}
 </style>

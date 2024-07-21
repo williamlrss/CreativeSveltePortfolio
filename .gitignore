@@ -19,3 +19,4 @@ yarn.lock
 symlink-from
 .idea/
 .prettierrc
+.github/
