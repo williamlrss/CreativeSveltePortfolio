@@ -11,14 +11,12 @@
 	// ACTIONS
 	import { setAccurateViewportHeight } from '../actions/setAccurateViewportHeight'; // responsive to browser's interface height (mobile devices)
 	import { fontSizer } from '../actions/fontSizer'; // responsive to container dimensions
-	import { noise } from '../actions/noise'; // nav components texture
 
 	// ASSETS
 	import cubicEls from '../assets/images/cubicEls.png'; // background
 	import me from '../assets/images/williamlrss.jpg';
 
 	// NAV COMPONENTS
-	// import HireMe from './navItems/hireMe.svelte';
 	import Credits from './navItems/Credits.svelte';
 	import MyCode from './navItems/TheCode.svelte';
 
@@ -53,7 +51,7 @@
 			$navItemActive = null;
 		} else {
 			// Select the unselected
-			if (index === 0) window.open(`https://profil-notion.williamlrss.com/`, '_blank');
+			if (index === 0) return;
 			else {
 				$navItemActive = index;
 				setTimeout(() => {
@@ -123,11 +121,14 @@
 							tabindex={($navItemActive != null && index !== $navItemActive) || $hireMeItemActive != null || $myCodeItemActive != null ? '-1' : '0'}
 							class="nav-item"
 							style="--topPos: {$positioning[index]}%"
+							disabled={index === 0}
 							use:fontSizer={{ h: true, p: $isMobileStore.aspectRatio ? 25 : 21 }}
 						>
 							{topics[index]}
 							<br />
-							<p style="scale: 0.6;">{desc[index]}</p>
+							{#if index === 1 || index === 2}
+								<p style="scale: 0.6;">{desc[index]}</p>
+							{/if}
 						</button>
 					{/each}
 				</nav>
@@ -406,7 +407,6 @@
 		&-item {
 			position: absolute;
 			z-index: 1;
-			cursor: pointer;
 			font: inherit;
 			display: grid;
 			place-items: center;
@@ -437,6 +437,9 @@
 
 			&:nth-child(1) {
 				top: var(--topPos, 0);
+				background-color: #ccc;
+				color: #191919;
+				box-shadow: unset;
 			}
 
 			&:nth-child(2) {
@@ -447,7 +450,13 @@
 				top: var(--topPos, 66%);
 			}
 
-			&:hover {
+			&:nth-child(2),
+			&:nth-child(3) {
+				cursor: pointer;
+			}
+
+			&:nth-child(2):hover,
+			&:nth-child(3):hover {
 				color: #191919;
 				background-color: transparent;
 				border: 2px solid #f7e7ced8;

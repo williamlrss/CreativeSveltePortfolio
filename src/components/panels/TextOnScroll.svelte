@@ -64,7 +64,7 @@
 		}
 	});
 
-	let txt = `Are\u200Byou\u200Blooking for\u200Bthe\u200Bbest Candidate?? ....\u200B..\u200B._.\u200B.\u200B\u200B__\u200B. \u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B`;
+	let txt = `\u200BAbove\u200Band\u200B \u200Bbeyond\u200Blimits\u200B ....\u200B..\u200B._.\u200B.\u200B\u200B__\u200B. \u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B\u200B`;
 
 	let totalCharFr = txt.replace(/\s+/g, '').length;
 
@@ -143,6 +143,10 @@
 			font-size: 9vw;
 			color: #f7e7ce;
 			font-weight: 400;
+
+			@media (min-aspect-ratio: 1/1) {
+				font-size: 8vw;
+			}
 
 			& > span {
 				top: 50%;

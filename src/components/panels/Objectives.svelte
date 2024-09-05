@@ -7,9 +7,9 @@
 		<li class="intro-list-item">deployment</li>
 		<li class="intro-list-item">back-end with node.js</li>
 		<li class="intro-list-item">Unit to end-to-end testing</li>
-		<li class="intro-list-item">Error log organization</li>
-		<li class="intro-list-item">DNS</li>
-		<li class="intro-list-item">Linux API server securitisation and management</li>
+		<li class="intro-list-item">Error log organisation</li>
+		<li class="intro-list-item">Domain and API connections - DNS</li>
+		<li class="intro-list-item">Securing and managing Linux API servers</li>
 	</ul>
 </div>
 

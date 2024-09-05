@@ -1,8 +1,10 @@
 <script>
 	import { isMobileStore } from '../../stores/isMobileStore';
 	import { isMenuActive } from '../../stores/navigationStores';
-
 	import { onDestroy, onMount } from 'svelte';
+	import { preventClickOnTouchMove } from '../../utils/preventClickOnTouchMove';
+
+	import { PHONE_NUMBER, EMAIL, LINKEDIN } from '../../stores/constants';
 
 	let title;
 	let progress = 0;
@@ -29,14 +31,37 @@
 		io.unobserve(title);
 		io.disconnect();
 	});
+
+	const followLinkOnMobile = url => e => {
+		if (preventClickOnTouchMove(e) === true) window.open(url, '_blank');
+	};
 </script>
 
 <section class="intro">
 	{#if !$isMobileStore.aspectRatio}
 		<div class="intro__contact">
-			<a class="intro__contact-item" href="tel:+33668860800">06 68 86 08 00</a>
-			<a class="intro__contact-item" href="mailto:williamlerossignol@outlook.com">williamlerossignol@outlook.com</a>
-			<a class="intro__contact-item" target="_blank" href="https://www.linkedin.com/in/williamlerossignol/">in/williamlerossignol</a>
+			<a
+				on:click={followLinkOnMobile(`tel:${PHONE_NUMBER}`)}
+				on:touchend={followLinkOnMobile(`tel:${PHONE_NUMBER}`)}
+				on:touchmove={followLinkOnMobile(`tel:${PHONE_NUMBER}`)}
+				class="intro__contact-item"
+				href="tel:{PHONE_NUMBER}">{PHONE_NUMBER}</a
+			>
+			<a
+				on:click={followLinkOnMobile(`mailto:${EMAIL}`)}
+				on:touchend={followLinkOnMobile(`mailto:${EMAIL}`)}
+				on:touchmove={followLinkOnMobile(`mailto:${EMAIL}`)}
+				class="intro__contact-item"
+				href="mailto:{EMAIL}">{EMAIL}</a
+			>
+			<a
+				on:click={followLinkOnMobile(`https://www.linkedin.com/${LINKEDIN}`)}
+				on:touchend={followLinkOnMobile(`https://www.linkedin.com/${LINKEDIN}`)}
+				on:touchmove={followLinkOnMobile(`https://www.linkedin.com/${LINKEDIN}`)}
+				class="intro__contact-item"
+				target="_blank"
+				href="https://www.linkedin.com/{LINKEDIN}">in/williamlerossignol</a
+			>
 		</div>
 	{/if}
 

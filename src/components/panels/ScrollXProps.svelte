@@ -1,5 +1,6 @@
 <script>
 	import { onDestroy, onMount } from 'svelte';
+	import { preventClickOnTouchMove } from '../../utils/preventClickOnTouchMove';
 
 	export let srcMain;
 	export let srcBefore;
@@ -13,7 +14,9 @@
 
 	export let bg = '';
 	export let name = '';
-	export let title = 'towards applicative development';
+	export let title = '';
+	export let link = '';
+
 	let words = title.split(' ').map(word => word);
 
 	let iRatio,
@@ -50,7 +53,7 @@
 
 	const options = {
 		root: null,
-		threshold: Array.from({ length: 1000 }, (_, i) => i / 1000),
+		threshold: Array.from({ length: 10000 }, (_, i) => i / 10000),
 		rootMargin: '0px 0px 0px 0px',
 	};
 
@@ -65,6 +68,10 @@
 		io.disconnect();
 		if (animationFrameId) cancelAnimationFrame(animationFrameId);
 	});
+
+	const followLinkOnMobile = url => e => {
+		if (preventClickOnTouchMove(e) === true) window.open(url, '_blank');
+	};
 </script>
 
 <div data-name={name} class="scrollXProps" bind:this={nodeScrollXDev}>
@@ -72,19 +79,21 @@
 		style="opacity: 1; z-index: 0; position: absolute; top: 15%; left: 0; width: 90%; height: 50%; transform: scaleY({iRatio *
 			100}%); transform-origin: top; background-color: {bg}; will-change: transform;"
 	></div>
-	<img class="scrollXProps-img" src={srcMain} alt={altMain} />
+	<img class="scrollXProps__img" loading="lazy" src={srcMain} alt={altMain} />
 
 	<img
-		class="scrollXProps-img scrollXProps-img--before"
+		class="scrollXProps__img scrollXProps__img--before"
 		style="transform: translate3d({-translateXIR}%, 0, 0);"
+		loading="lazy"
 		src={srcBefore}
 		alt={altBefore}
 		bind:this={nodeBefore}
 	/>
 
 	<img
-		class="scrollXProps-img scrollXProps-img--after"
+		class="scrollXProps__img scrollXProps__img--after"
 		style="transform: translate3d({translateXIR}%, 0, 0);"
+		loading="lazy"
 		src={srcAfter}
 		alt={altAfter}
 		bind:this={nodeAfter}
@@ -92,11 +101,21 @@
 
 	<h2 class="scrollXProps-title" bind:this={nodeTitleSpanParent}>
 		{#each words as word}
-			<span>
+			<span class="scrollXProps-title__element">
 				{word}
 			</span>
 		{/each}
 	</h2>
+	{#if link}
+		<a
+			on:click={followLinkOnMobile(link)}
+			on:touchend={followLinkOnMobile(link)}
+			on:touchmove={followLinkOnMobile(link)}
+			class="scrollXProps__button"
+			href={link}
+			target="_blank">Visit website</a
+		>
+	{/if}
 </div>
 
 <style lang="scss">
@@ -118,14 +137,12 @@
 			height: 100vh;
 		}
 
-		&-img {
+		&__img {
 			position: absolute;
 			z-index: 2;
 			height: 50%;
-
-			opacity: 0.8;
-
-			scale: 0.7;
+			box-shadow: -7px 7px 14px -1px rgba(0, 0, 0, 0.8);
+			scale: 0.5;
 
 			@media (min-aspect-ratio: 1/1) {
 				height: 80%;
@@ -133,12 +150,11 @@
 
 			&--before,
 			&--after {
-				opacity: 0.5;
+				opacity: 0.8;
 				z-index: 1;
 				scale: 0.6;
 
 				will-change: transform;
-				// transition: transform 0.1s;
 			}
 		}
 
@@ -150,6 +166,7 @@
 			flex-direction: column;
 			font-size: 8vw;
 			font-weight: 500;
+			font-variant-caps: all-small-caps;
 			opacity: 0.8;
 
 			@media (min-aspect-ratio: 1/1) {
@@ -157,7 +174,7 @@
 				font-size: 4vw;
 			}
 
-			& span {
+			&__element {
 				display: flex;
 				will-change: transform;
 				transition: transform 0.5s ease-out;
@@ -189,6 +206,23 @@
 
 			& > span:nth-child(3) {
 				z-index: 2;
+			}
+		}
+
+		&__button {
+			@extend .scrollXProps-title;
+			left: unset;
+			right: 15%;
+			box-shadow: -7px 7px 14px -1px rgba(0, 0, 0, 0.8);
+			padding: 20px;
+			scale: 0.8;
+			color: #f7e7ce;
+			background-color: #191919;
+
+			@media (max-aspect-ratio: 1/1) {
+				right: 50%;
+				transform: translateX(50%);
+				bottom: -60%;
 			}
 		}
 	}

@@ -58,14 +58,21 @@
 	// console.log(container.querySelectorAll('.myCode__button')[4]);
 	// }
 
-	let txt = `It felt only natural to use Svelte as the foundation for my portfolio. Truthfully, having JavaScript functions tied to DOM elements, globally accessible variables, and components that integrates HTML, CSS, and JS into a single file makes everything incredibly straightforward. Thank you Svelte team!`;
+	let txt = [
+		`Like Nuxt and Next.js, Svelte.js is one of the most effective next-generation frameworks.`,
+		`The basic idea of this portfolio was to compose a website that reflects my current skills without the use of any external libraries except for 'Highlight.js' for code integration within this component.`,
+		`Although it provides custom “on scroll” scripting with the help of browser APIs, list rendering for components and additional UI functions retrieved from CodePen.io.`,
+		`This website was built intuitively and does not reflect a professional solution.`,
+	];
 </script>
 
 <section class:myCode--active={$myCodeItemActive != null} class="myCode" use:scrollBackToButton={codeData.length} bind:this={container}>
 	<div class="overlayOnScroll" class:overlayOnScroll--active={$scrollBackToButtonActive}></div>
 	{#if $myCodeItemActive === null}
 		<p class="myCode__heading">
-			{txt}
+			{#each txt as paragraph}
+				<span>{paragraph}</span>
+			{/each}
 		</p>
 	{/if}
 	{#each codeData as _, index}
@@ -178,6 +185,11 @@
 			width: 100%;
 			margin-bottom: 10px;
 			box-sizing: border-box;
+
+			display: flex;
+			flex-direction: column;
+			gap: 1em;
+
 			color: #ccc;
 			transition: all 0.3s;
 
@@ -185,6 +197,11 @@
 
 			@media (min-aspect-ratio: 1/1) {
 				font-size: 2vw;
+
+				& > span {
+					width: 80%;
+					text-align: justify;
+				}
 			}
 		}
 

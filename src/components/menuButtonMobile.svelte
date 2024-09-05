@@ -1,19 +1,11 @@
 <script>
 	import { isMenuActive } from '../stores/navigationStores';
+	import { preventClickOnTouchMove } from '../utils/preventClickOnTouchMove';
 
 	let buttonMobile;
 
-	let lockValue = false;
-
 	const toggleActive = e => {
-		e.preventDefault();
-		if (e.type === 'touchmove') {
-			lockValue = true;
-			setTimeout(() => {
-				lockValue = false;
-			}, 300);
-		}
-		if (e.type !== 'touchmove' && !lockValue) isMenuActive.update(n => !n);
+		if (preventClickOnTouchMove(e) === true) isMenuActive.update(n => !n);
 	};
 </script>
 
